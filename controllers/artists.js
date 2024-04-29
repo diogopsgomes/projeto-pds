@@ -120,7 +120,7 @@ exports.editArtist = async (req, res) => {
 			success: 1,
 			message: "Artista editado com sucesso",
 		};
-
+ 
 		return res.status(200).send(response);
 	} catch (err) {
 		console.error("Error editing artist:", err);
