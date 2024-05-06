@@ -135,9 +135,6 @@ exports.informEstimatedDeadline = async (req, res) => {
 	}
 };
 
-exports.editSupport_Ticket = async (req, res) => {
-};
-
 exports.removeSupport_Ticket = async (req, res) => {
 	try {
 
@@ -241,4 +238,8 @@ exports.approveSupport_ticket = async (req, res) => {
 		console.error("Error approving ticket:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
+};
+
+exports.provideFeedback = async (req, res) => {
+
 };
