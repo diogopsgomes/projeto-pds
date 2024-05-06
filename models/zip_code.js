@@ -1,16 +1,29 @@
-const  DataTypes = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const ZipCode = sequelize.define('zip_code', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('zip_code', {
     zipid: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey: true
     },
     location: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false
     }
+  }, {
+    sequelize,
+    tableName: 'zip_code',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "zipid" },
+        ]
+      },
+    ]
   });
-  
-  module.exports = ZipCode;
+};

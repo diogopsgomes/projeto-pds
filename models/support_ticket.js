@@ -1,25 +1,21 @@
-const  DataTypes = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const SupportTicket = sequelize.define('support_ticket', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('support_ticket', {
     stid: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    priority: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true
     },
-    support_statessid: {
+    Description: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    support_statesssid: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'support_status',
+        model: 'support_state',
         key: 'ssid'
       }
     },
@@ -27,7 +23,7 @@ const SupportTicket = sequelize.define('support_ticket', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Museum',
+        model: 'museum',
         key: 'mid'
       }
     },
@@ -35,10 +31,48 @@ const SupportTicket = sequelize.define('support_ticket', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'User',
+        model: 'user',
         key: 'uid'
       }
+    },
+    priority: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
+  }, {
+    sequelize,
+    tableName: 'support_ticket',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "stid" },
+        ]
+      },
+      {
+        name: "FKsupport_ti689656",
+        using: "BTREE",
+        fields: [
+          { name: "support_statesssid" },
+        ]
+      },
+      {
+        name: "FKsupport_ti993949",
+        using: "BTREE",
+        fields: [
+          { name: "museummid" },
+        ]
+      },
+      {
+        name: "FKsupport_ti303040",
+        using: "BTREE",
+        fields: [
+          { name: "useruid" },
+        ]
+      },
+    ]
   });
-
-  module.exports = SupportTicket;
+};

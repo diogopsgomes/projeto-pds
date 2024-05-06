@@ -1,14 +1,14 @@
-const  DataTypes = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const Ticket = sequelize.define('ticket', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('ticket', {
     tid: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey: true
     },
     ticket_purchase_date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: false
     },
     ticket_price: {
@@ -19,7 +19,7 @@ const Ticket = sequelize.define('ticket', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Event',
+        model: 'event',
         key: 'eid'
       }
     },
@@ -27,7 +27,7 @@ const Ticket = sequelize.define('ticket', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'User',
+        model: 'user',
         key: 'uid'
       }
     },
@@ -35,10 +35,44 @@ const Ticket = sequelize.define('ticket', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'TicketStatus',
+        model: 'ticket_status',
         key: 'ts_id'
       }
     }
+  }, {
+    sequelize,
+    tableName: 'ticket',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "tid" },
+        ]
+      },
+      {
+        name: "FKticket844838",
+        using: "BTREE",
+        fields: [
+          { name: "eventeid" },
+        ]
+      },
+      {
+        name: "FKticket358381",
+        using: "BTREE",
+        fields: [
+          { name: "useruid" },
+        ]
+      },
+      {
+        name: "FKticket303505",
+        using: "BTREE",
+        fields: [
+          { name: "ticket_statusts_id" },
+        ]
+      },
+    ]
   });
-  
-  module.exports = Ticket;
+};

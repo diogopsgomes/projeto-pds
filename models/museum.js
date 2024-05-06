@@ -1,24 +1,23 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const Museum = sequelize.define('museum', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('museum', {
     mid: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey: true
     },
     museum_name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     museum_address: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     premium: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: false
+      allowNull: true
     },
     zip_ext: {
       type: DataTypes.INTEGER,
@@ -28,7 +27,7 @@ const Museum = sequelize.define('museum', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'MuseumCategory',
+        model: 'museum_category',
         key: 'mcid'
       }
     },
@@ -36,10 +35,37 @@ const Museum = sequelize.define('museum', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'ZipCode',
+        model: 'zip_code',
         key: 'zipid'
       }
     }
+  }, {
+    sequelize,
+    tableName: 'museum',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "mid" },
+        ]
+      },
+      {
+        name: "FKmuseum6780",
+        using: "BTREE",
+        fields: [
+          { name: "museum_categorymcid" },
+        ]
+      },
+      {
+        name: "FKmuseum371835",
+        using: "BTREE",
+        fields: [
+          { name: "zip_codezipid" },
+        ]
+      },
+    ]
   });
-  
-  module.exports = Museum;
+};

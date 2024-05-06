@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-const connection = new Sequelize('musewww', 'root', 'diogodias11', {
+const connection = new Sequelize('pds_musewww', 'root', 'diogodias11', {
   host: 'localhost',
   dialect: 'mysql'
 });

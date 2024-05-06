@@ -1,16 +1,29 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const UserStatus = sequelize.define('user_status', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('user_status', {
     us_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true
     },
     us_description: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-});
-
-module.exports = UserStatus;
+      type: DataTypes.STRING(255),
+      allowNull: true
+    }
+  }, {
+    sequelize,
+    tableName: 'user_status',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "us_id" },
+        ]
+      },
+    ]
+  });
+};

@@ -15,6 +15,6 @@ router.put("/museums/edit/:id", login.required, museumsController.editMuseum);
 // Remove museum
 router.delete("/museums/remove/:id", login.required, museumsController.removeMuseum);
 // Approve museum
-router.put("/museums/approve/:id", login.required, usersController.approveUser);
+router.put("/museums/approve/:id", login.required, museumsController.approveUser);
 
 module.exports = router;

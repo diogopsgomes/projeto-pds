@@ -1,16 +1,29 @@
-const  DataTypes = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const MuseumCategory = sequelize.define('museum_category', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('museum_category', {
     mcid: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey: true
     },
     mc_description: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING(255),
+      allowNull: true
     }
+  }, {
+    sequelize,
+    tableName: 'museum_category',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "mcid" },
+        ]
+      },
+    ]
   });
-  
-  module.exports = MuseumCategory;
+};

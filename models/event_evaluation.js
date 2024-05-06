@@ -1,6 +1,14 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('favorites', {
+  return sequelize.define('event_evaluation', {
+    ee_description: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    ee_evaluation: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     useruid: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -10,18 +18,18 @@ module.exports = function(sequelize, DataTypes) {
         key: 'uid'
       }
     },
-    productprodid: {
+    eventeid: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       references: {
-        model: 'product',
-        key: 'prodid'
+        model: 'event',
+        key: 'eid'
       }
     }
   }, {
     sequelize,
-    tableName: 'favorites',
+    tableName: 'event_evaluation',
     timestamps: false,
     indexes: [
       {
@@ -30,14 +38,14 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "useruid" },
-          { name: "productprodid" },
+          { name: "eventeid" },
         ]
       },
       {
-        name: "FKfavorites864729",
+        name: "FKevent_eval415646",
         using: "BTREE",
         fields: [
-          { name: "productprodid" },
+          { name: "eventeid" },
         ]
       },
     ]

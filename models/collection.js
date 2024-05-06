@@ -1,16 +1,29 @@
-const  DataTypes = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const Collection = sequelize.define('collection', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('collection', {
     cid: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey: true
     },
     collection_name: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING(255),
+      allowNull: true
     }
+  }, {
+    sequelize,
+    tableName: 'collection',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "cid" },
+        ]
+      },
+    ]
   });
-  
-  module.exports = Collection;
+};

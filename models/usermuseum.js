@@ -1,6 +1,15 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('favorites', {
+  return sequelize.define('usermuseum', {
+    museummid: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: {
+        model: 'museum',
+        key: 'mid'
+      }
+    },
     useruid: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -10,18 +19,17 @@ module.exports = function(sequelize, DataTypes) {
         key: 'uid'
       }
     },
-    productprodid: {
+    user_typeutid: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
       references: {
-        model: 'product',
-        key: 'prodid'
+        model: 'user_type',
+        key: 'utid'
       }
     }
   }, {
     sequelize,
-    tableName: 'favorites',
+    tableName: 'usermuseum',
     timestamps: false,
     indexes: [
       {
@@ -29,15 +37,22 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
+          { name: "museummid" },
           { name: "useruid" },
-          { name: "productprodid" },
         ]
       },
       {
-        name: "FKfavorites864729",
+        name: "FKusermuseum930007",
         using: "BTREE",
         fields: [
-          { name: "productprodid" },
+          { name: "useruid" },
+        ]
+      },
+      {
+        name: "FKusermuseum805172",
+        using: "BTREE",
+        fields: [
+          { name: "user_typeutid" },
         ]
       },
     ]

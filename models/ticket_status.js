@@ -1,16 +1,29 @@
-const  DataTypes = require('sequelize');
-const sequelize = require('../config/mysql');
-
-const TicketStatus = sequelize.define('ticket_status', {
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('ticket_status', {
     ts_id: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey: true
     },
     desc_ticket_status: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING(255),
+      allowNull: true
     }
+  }, {
+    sequelize,
+    tableName: 'ticket_status',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "ts_id" },
+        ]
+      },
+    ]
   });
-  
-  module.exports = TicketStatus;
+};
