@@ -60,13 +60,13 @@ exports.getPieceById = async (req, res) => {
 	}
 };
 
-exports.getPieceByName = async (req, res) => {
+exports.getPiecesByName = async (req, res) => {
     try {
 		let name = req.params.name;
 
 		let piece = await Museum.findAll({ where: { piece_name: name } });
 
-		if (!piece) {
+		if (!piece || piece.length === 0) {
 			return res.status(404).send({ success: 0, message: "Peça inexistente" });
 		}
 

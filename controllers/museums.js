@@ -1,4 +1,5 @@
 const Museum = require('../models/museum');
+const MuseumCategory = require('../models/museum_category');
 const User = require('../models/user');
 const utils = require('../utils/index');
 
@@ -13,17 +14,12 @@ exports.getMuseums = async (req, res) => {
 			length: museums.length,
 			results: museums.map((museum) => {
 				return {
-					id: museum.id_museum,
-					name: museum.name,
-					type: museum.type,
-					nif: museum.nif,
-					address: museum.address,
-					postalCode: museum.postal_code,
-					city: museum.city,
-					img: museum.img,
-					bg: museum.bg,
-					approved: museum.approved,
-					idOwner: museum.id_user,
+					id: museum.mid,
+					name: museum.museum_name,
+                    address: museum.museum_address,
+                    category: museum.museum_categorymcid,
+					zip: museum.codezipid,
+					zip_ext: museum.zip_ext,
 				};
 			}),
 		};
@@ -34,7 +30,7 @@ exports.getMuseums = async (req, res) => {
 	}
 };
 
-exports.getMuseum = async (req, res) => {
+exports.getMuseumById = async (req, res) => {
 	try {
 		let id = req.params.id;
 
@@ -48,17 +44,12 @@ exports.getMuseum = async (req, res) => {
 			success: 1,
 			length: 1,
 			results: [{
-				id: museum.id_museum,
-				name: museum.name,
-				type: museum.type,
-				nif: museum.nif,
-				address: museum.address,
-				postalCode: museum.postal_code,
-				city: museum.city,
-				img: museum.img,
-				bg: museum.bg,
-				approved: museum.approved,
-				idOwner: museum.id_user,
+				id: museum.mid,
+					name: museum.museum_name,
+                    address: museum.museum_address,
+                    category: museum.museum_categorymcid,
+					zip: museum.codezipid,
+					zip_ext: museum.zip_ext,
 			}],
 		};
 
@@ -68,6 +59,76 @@ exports.getMuseum = async (req, res) => {
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
+
+exports.getMuseumsByName = async (req, res) => {
+    try {
+		let name = req.params.name;
+
+		let museum = await Museum.findOne({ where: { museum_name: name } });
+
+		if (!museum) {
+			return res.status(404).send({ success: 0, message: "Museu inexistente" });
+		}
+
+		let response = {
+			success: 1,
+			length: museums.length,
+			results: museums.map((museum) => {
+				return {
+					id: museum.mid,
+					name: museum.museum_name,
+                    address: museum.museum_address,
+                    category: museum.museum_categorymcid,
+					zip: museum.codezipid,
+					zip_ext: museum.zip_ext,
+				};
+			}),
+		};
+
+		return res.status(200).send(response);
+	} catch (err) {
+		console.error("Error fetching pieces by name:", err);
+		return res.status(500).send({ error: err, message: err.message });
+	}
+}
+
+exports.getMuseumsByCategory = async (req, res) => {
+    try {
+        let categoryName = req.params.categoryName;
+
+        let category = await MuseumCategory.findAll({ where: { mc_description: categoryName } });
+
+        if (!category) {
+            return res.status(404).send({ success: 0, message: "Categoria inexistente" });
+        }
+
+        let museums = await Museum.findAll({ where: { museum_categorymcid: category.mcid } });
+
+        if (!museums) {
+            return res.status(404).send({ success: 0, message: "Não há museus para esta categoria" });
+        }
+
+        let response = {
+			success: 1,
+			length: museums.length,
+			results: museums.map((museum) => {
+				return {
+					id: piece.pid,
+					name: piece.piece_name,
+                    artist: piece.artistaid,
+                    collection: piece.collectioncid,
+                    category: piece.piece_categorypcid,
+                    museum: piece.museummid,
+				};
+			}),
+		};
+
+        return res.status(200).send(response);
+    } catch (err) {
+        console.error("Error fetching museums by category:", err);
+        return res.status(500).send({ error: err, message: err.message });
+    }
+}
 
 exports.addMuseum = async (req, res) => {
 	try {
