@@ -71,9 +71,8 @@ exports.addArtist = async (req, res) => {
 		}
 
 		let newArtist = await Artist.create({
-			name: name,
-			birthday: birthday,
-			id_user: idOwner
+			artist_name: name,
+			artist_birthday: birthday,
 		});
 
 		let response = {

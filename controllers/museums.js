@@ -132,32 +132,33 @@ exports.addMuseum = async (req, res) => {
 	try {
 
 		let name = req.body.name;
-		let type = req.body.type;
 		let address = req.body.address;
-		let postalCode = req.body.postalCode;
-		let city = req.body.city;
-		let nif = req.body.nif;
+		let premium = req.body.premium;
+		let zip_ext = req.body.zip_ext;
+		let category = req.body.category;
+		let zip_code = req.body.zip_code;
 		let idOwner = req.body.idOwner;
 		let idUserToken = req.user.id;
 
-		let isAdmin = await utils.isAdmin(idUserToken);
+		/*let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin && idOwner != idUserToken) {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
+		*/
 
-		let user = await User.findByPk(idOwner);
+		/*let user = await db.user.findByPk(idOwner);
 		if (!user) {
 			return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
 		}
+		*/
 
-		let newMuseum = await Museum.create({
-			name: name,
-			type: type,
-			address: address,
-			postal_code: postalCode,
-			city: city,
-			nif: nif,
-			id_user: idOwner
+		let newMuseum = await db.museum.create({
+			museum_name: name,
+			museum_address: address,
+			premium: premium,
+			zip_ext: zip_ext,
+			museum_categorymcid: category,
+			zip_codezipid: zip_code,
 		});
 
 		let response = {
@@ -177,7 +178,7 @@ exports.editMuseum = async (req, res) => {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
-		let museum = await Museum.findByPk(id);
+		let museum = await db.museum.findByPk(id);
 
 		if (!museum) {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });

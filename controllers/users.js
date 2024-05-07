@@ -1,4 +1,6 @@
 const db = require('../config/mysql');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const utils = require('../utils/index');
 
 exports.login = async (req, res) => {
@@ -7,18 +9,27 @@ exports.login = async (req, res) => {
 		let email = req.body.email; 
 		let password = req.body.password;
 
-		let user = await db.user.findOne({ where: { email: email } });
+		let user = await db.user.findOne({ where: { user_email: email } });
 
 		if (!user) {
 			return res.status(401).send({ success: 0, message: 'Falha na autenticação' });
 		}
 
-		let passwordMatch = await user.comparePassword(password);
+		// If passwords match
+		if (bcrypt.compareSync(password, user.user_password)) {
+			// Generate token
+			let token = jwt.sign(
+				{
+					uid: user.uid,
+				},
+				'#^NJW5SKJ$Oke&Q=QJAR{hfAt9BH^e',
+				{
+					algorithm: 'HS256',
+					expiresIn: '1d',
+				}
+			);
 
-		if (passwordMatch) {
-
-            let token = user.generateAuthToken();
-            
+			// Send response
 			return res.status(200).send({
 				success: 1,
 				message: 'Autenticado com sucesso',
@@ -26,9 +37,9 @@ exports.login = async (req, res) => {
 			});
 		}
 
+		// If passwords don't match
 		return res.status(401).send({ success: 0, message: 'Falha na autenticação' });
 	} catch (err) {
-		console.error("Error authenticating user:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -36,9 +47,10 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
 	try {
 
-		let { email, password, name, nif, address, postalCode, city } = req.body;
+		let { email, password, name, status } = req.body;
 
 		let existingUser = await db.user.findOne({ where: { user_email: email } });
+
 		if (existingUser) {
 			return res.status(409).send({ success: 0, message: 'Utilizador já registado' });
 		}
@@ -49,16 +61,15 @@ exports.register = async (req, res) => {
 		let hashedPassword = await bcrypt.hash(password, 10);
 
 		let newUser = await db.user.create({
-			email: user_email,
-			password: hashedPassword,
-			name: user_name,
-			status: user_statusus_id //Dúvida
+			user_email: email,
+			user_password: hashedPassword,
+			user_name: name,
+			user_statusus_id: status
 		});
 
 		let response = {
 			success: 1,
 			message: 'Utilizador registado com sucesso',
-            id: newUser.uid
 		};
 
 		return res.status(201).send(response);
@@ -70,12 +81,13 @@ exports.register = async (req, res) => {
 exports.getUsers = async (req, res) => {
 	try {
 
-		let idUserToken = req.user.id;
+		//let idUserToken = req.user.id;
 
-		let isAdmin = await utils.isAdmin(idUserToken);
+		/*let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin) return res.status(403).send({ success: 0, message: 'Sem permissão' });
+		*/
 
-		let users = await User.findAll();
+		let users = await db.user.findAll();
 
 		if (users.length === 0) return res.status(404).send({ success: 0, message: 'Não existem utilizadores' });
 
@@ -84,15 +96,10 @@ exports.getUsers = async (req, res) => {
 			length: users.length,
 			results: users.map((user) => {
 				return {
-					id: user.id_user,
-					email: user.email,
-					name: user.name,
-					nif: user.nif,
-					address: user.address,
-					postalCode: user.postal_code,
-					city: user.city,
-					type: user.type,
-					approved: user.approved,
+					id: user.uid,
+					email: user.user_email,
+					name: user.user_name,
+					status: user.user_statusus_id,
 				};
 			}),
 		};
@@ -107,11 +114,11 @@ exports.getUser = async (req, res) => {
 	try {
 
 		let id = req.params.id;
-		let idUserToken = req.user.id;
+		//let idUserToken = req.user.id;
 
-		let isAdmin = await utils.isAdmin(idUserToken);
+		/*let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin && id != idUserToken) return res.status(403).send({ success: 0, message: 'Sem permissão' });
-
+		*/
 		let user = await db.user.findByPk(id);
 
 
@@ -121,15 +128,10 @@ exports.getUser = async (req, res) => {
 			success: 1,
 			length: 1,
 			results: [{
-				id: user.id_user,
-				email: user.email,
-				name: user.name,
-				nif: user.nif,
-				address: user.address,
-				postalCode: user.postal_code,
-				city: user.city,
-				type: user.type,
-				approved: user.approved,
+				id: user.uid,
+				email: user.user_email,
+				name: user.user_name,
+				status: user.user_statusus_id,
 			}],
 		};
 
@@ -212,18 +214,18 @@ exports.tokenVerify = async (req, res) => {
 			return res.status(401).send({ success: 0, error: err, message: err.message });
 		}
 
-		let id = decode.id;
+		let id = decode.uid;
 
-		let user = await User.findByPk(id);
+		let user = await db.user.findByPk(id);
 		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });
 
 		let response = {
 			success: 1,
 			user: {
-				id: user.id_user,
-				email: user.email,
-				name: user.name,
-				type: user.type,
+				id: user.uid,
+				email: user.user_email,
+				name: user.user_name,
+				status: user.user_statusus_id,
 			},
 		};
 
@@ -272,22 +274,21 @@ exports.changePassword = async (req, res) => {
 		let id = req.params.id;
 		let oldPassword = req.body.oldPassword;
 		let newPassword = req.body.newPassword;
-		let idUserToken = req.user.id;
+		//let idUserToken = req.user.id;
 
-		if (id != idUserToken) return res.status(403).send({ success: 0, message: 'Sem permissão' });
+		//if (id != idUserToken) return res.status(403).send({ success: 0, message: 'Sem permissão' });
 
-		let user = await User.findByPk(id);
+		let user = await db.user.findByPk(id);
 		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });
+		
+		if (newPassword.length < 12) return res.status(411).send({ success: 0, message: 'A palavra-passe tem de ter 12 ou mais caracteres' });
 
-		if (newPassword.length < 8) return res.status(411).send({ success: 0, message: 'A palavra-passe tem de ter 8 ou mais caracteres' });
 
-
-		if (bcrypt.compareSync(oldPassword, user.password)) {
+		if (bcrypt.compareSync(oldPassword, user.user_password)) {
 
 			let hash = await bcrypt.hashSync(newPassword, 10);
 
-
-			user.password = hash;
+			user.user_password = hash;
 			await user.save();
 
 
