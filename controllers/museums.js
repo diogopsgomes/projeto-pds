@@ -1,11 +1,9 @@
-const Museum = require('../models/museum');
-const MuseumCategory = require('../models/museum_category');
-const User = require('../models/user');
+const db = require('../config/mysql');
 const utils = require('../utils/index');
 
 exports.getMuseums = async (req, res) => {
 	try {
-		let museums = await Museum.findAll();
+		let museums = await db.museum.findAll();
 
 		if (museums.length === 0) return res.status(404).send({ success: 0, message: "Não existem museus" });
 
@@ -18,7 +16,7 @@ exports.getMuseums = async (req, res) => {
 					name: museum.museum_name,
                     address: museum.museum_address,
                     category: museum.museum_categorymcid,
-					zip: museum.codezipid,
+					zip: museum.zip_codezipid,
 					zip_ext: museum.zip_ext,
 				};
 			}),
@@ -34,7 +32,7 @@ exports.getMuseumById = async (req, res) => {
 	try {
 		let id = req.params.id;
 
-		let museum = await Museum.findByPk(id);
+		let museum = await db.museum.findByPk(id);
 
 		if (!museum) {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });
@@ -45,11 +43,11 @@ exports.getMuseumById = async (req, res) => {
 			length: 1,
 			results: [{
 				id: museum.mid,
-					name: museum.museum_name,
-                    address: museum.museum_address,
-                    category: museum.museum_categorymcid,
-					zip: museum.codezipid,
-					zip_ext: museum.zip_ext,
+				name: museum.museum_name,
+                address: museum.museum_address,
+                category: museum.museum_categorymcid,
+				zip: museum.zip_codezipid,
+				zip_ext: museum.zip_ext,
 			}],
 		};
 
@@ -64,9 +62,9 @@ exports.getMuseumsByName = async (req, res) => {
     try {
 		let name = req.params.name;
 
-		let museum = await Museum.findOne({ where: { museum_name: name } });
+		let museums = await db.museum.findAll({ where: { museum_name: name } });
 
-		if (!museum) {
+		if (!museums) {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });
 		}
 
@@ -79,7 +77,7 @@ exports.getMuseumsByName = async (req, res) => {
 					name: museum.museum_name,
                     address: museum.museum_address,
                     category: museum.museum_categorymcid,
-					zip: museum.codezipid,
+					zip: museum.zip_codezipid,
 					zip_ext: museum.zip_ext,
 				};
 			}),
@@ -90,19 +88,19 @@ exports.getMuseumsByName = async (req, res) => {
 		console.error("Error fetching pieces by name:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
-}
+};
 
 exports.getMuseumsByCategory = async (req, res) => {
     try {
         let categoryName = req.params.categoryName;
 
-        let category = await MuseumCategory.findAll({ where: { mc_description: categoryName } });
+        let category = await db.museum_category.findOne({ where: { museum_category : categoryName } });
 
         if (!category) {
             return res.status(404).send({ success: 0, message: "Categoria inexistente" });
         }
 
-        let museums = await Museum.findAll({ where: { museum_categorymcid: category.mcid } });
+        let museums = await db.museum.findAll({ where: { museum_categorymcid: category.mcid } });
 
         if (!museums) {
             return res.status(404).send({ success: 0, message: "Não há museus para esta categoria" });
@@ -113,12 +111,12 @@ exports.getMuseumsByCategory = async (req, res) => {
 			length: museums.length,
 			results: museums.map((museum) => {
 				return {
-					id: piece.pid,
-					name: piece.piece_name,
-                    artist: piece.artistaid,
-                    collection: piece.collectioncid,
-                    category: piece.piece_categorypcid,
-                    museum: piece.museummid,
+					id: museum.mid,
+					name: museum.museum_name,
+                    address: museum.museum_address,
+                    category: museum.museum_categorymcid,
+					zip: museum.zip_codezipid,
+					zip_ext: museum.zip_ext,
 				};
 			}),
 		};
@@ -128,7 +126,7 @@ exports.getMuseumsByCategory = async (req, res) => {
         console.error("Error fetching museums by category:", err);
         return res.status(500).send({ error: err, message: err.message });
     }
-}
+};
 
 exports.addMuseum = async (req, res) => {
 	try {

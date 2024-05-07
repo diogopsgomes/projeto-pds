@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const db = require('../config/mysql');
 const utils = require('../utils/index');
 
 exports.login = async (req, res) => {
@@ -7,7 +7,7 @@ exports.login = async (req, res) => {
 		let email = req.body.email; 
 		let password = req.body.password;
 
-		let user = await User.findOne({ where: { email: email } });
+		let user = await db.user.findOne({ where: { email: email } });
 
 		if (!user) {
 			return res.status(401).send({ success: 0, message: 'Falha na autenticação' });
@@ -38,31 +38,27 @@ exports.register = async (req, res) => {
 
 		let { email, password, name, nif, address, postalCode, city } = req.body;
 
-		let existingUser = await User.findOne({ where: { email: email } });
+		let existingUser = await db.user.findOne({ where: { user_email: email } });
 		if (existingUser) {
 			return res.status(409).send({ success: 0, message: 'Utilizador já registado' });
 		}
 
 		if (email.length < 5) return res.status(406).send({ success: 0, message: 'Email inválido' });
-		if (password.length < 8) return res.status(411).send({ success: 0, message: 'A palavra-passe tem de ter 8 ou mais caracteres' });
-		if (!Number.isInteger(nif) && nif.length !== 9) return res.status(406).send({ success: 0, message: 'NIF inválido' });
+		if (password.length < 12) return res.status(411).send({ success: 0, message: 'A palavra-passe tem de ter 12 ou mais caracteres' });
 
 		let hashedPassword = await bcrypt.hash(password, 10);
 
-		let newUser = await User.create({
-			email: email,
+		let newUser = await db.user.create({
+			email: user_email,
 			password: hashedPassword,
-			name: name,
-			nif: nif,
-			address: address,
-			postal_code: postalCode,
-			city: city
+			name: user_name,
+			status: user_statusus_id //Dúvida
 		});
 
 		let response = {
 			success: 1,
 			message: 'Utilizador registado com sucesso',
-            id: newUser.id_user
+            id: newUser.uid
 		};
 
 		return res.status(201).send(response);
@@ -116,7 +112,7 @@ exports.getUser = async (req, res) => {
 		let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin && id != idUserToken) return res.status(403).send({ success: 0, message: 'Sem permissão' });
 
-		let user = await User.findByPk(id);
+		let user = await db.user.findByPk(id);
 
 
 		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });

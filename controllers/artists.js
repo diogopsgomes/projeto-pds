@@ -1,9 +1,9 @@
-const Artist = require("../models/artist");
+const db = require('../config/mysql');
 const utils = require("../utils/index");
 
 exports.getArtists = async (req, res) => {
 	try {
-		let artists = await Artist.findAll();
+		const artists = await db.artist.findAll();
 
 		if (artists.length === 0)
 			return res.status(404).send({ success: 0, message: "Não existem artistas" });
@@ -13,9 +13,9 @@ exports.getArtists = async (req, res) => {
 			length: artists.length,
 			results: artists.map((artist) => {
 				return {
-					id: artist.id,
-                    name: artist.name,
-                    birthday: artist.birthday,
+					id: artist.aid,
+                    name: artist.artist_name,
+                    birthday: artist.artist_birthdate,
 				};
 			}),
 		};
@@ -30,7 +30,7 @@ exports.getArtist = async (req, res) => {
 	try {
 		let id = req.params.id;
 
-		let artist = await Artist.findByPk(id);
+		const artist = await db.artist.findByPk(id);
 
 		if (!artist) {
 			return res.status(404).send({ success: 0, message: "Artista inexistente" });
@@ -38,14 +38,11 @@ exports.getArtist = async (req, res) => {
 
 		let response = {
 			success: 1,
-			length: 1,
-			results: [
-				{
-					id: artist.id,
-                    name: artist.name,
-                    birthday: artist.birthday,
-				},
-			],
+			results: {
+				id: artist.aid,
+				name: artist.artist_name,
+				birthday: artist.artist_birthdate,
+			}
 		};
 
 		return res.status(200).send(response);
@@ -134,7 +131,7 @@ exports.removeArtist = async (req, res) => {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
-		let artist = await Artist.findByPk(id);
+		const artist = await db.artist.findByPk(id);
 
 		if (!artist) {
 			return res.status(404).send({ success: 0, message: "Artista inexistente" });

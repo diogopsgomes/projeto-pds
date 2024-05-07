@@ -9,9 +9,9 @@ router.get("/museums", museumsController.getMuseums);
 // List specific museum by id
 router.get("/museums/:id", museumsController.getMuseumById);
 // List specific museum by id
-router.get("/museums/:name", museumsController.getMuseumsByName);
+router.get("/museums/name/:name", museumsController.getMuseumsByName);
 // List specific museum by category
-router.get("/museums/:category", museumsController.getMuseumsByCategory);
+router.get("/museums/category/:category", museumsController.getMuseumsByCategory);
 // Add museum
 router.post("/museums/add", login.required, museumsController.addMuseum);
 // Edit museum

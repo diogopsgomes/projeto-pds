@@ -1,9 +1,9 @@
-const Support_Ticket = require("../models/support_ticket");
+const db = require('../config/mysql');
 const utils = require("../utils/index");
 
 exports.getSupport_tickets = async (req, res) => {
 	try {
-		let tickets = await Support_Ticket.findAll();
+		let tickets = await db.support_ticket.findAll();
 
 		if (tickets.length === 0)
 			return res.status(404).send({ success: 0, message: "Não existem Pedidos de suporte" });
@@ -11,14 +11,14 @@ exports.getSupport_tickets = async (req, res) => {
 		let response = {
 			success: 1,
 			length: tickets.length,
-			results: tickets.map((Support_Ticket) => {
+			results: tickets.map((support_ticket) => {
 				return {
-					id: tickets.id,
-					description: tickets.description,
-					statessid: tickets.support_statesssid,
-					museuid: tickets.museummid,
-					userid: tickets.userid,
-					priority: tickets.priority,
+					id: support_ticket.stid,
+					description: support_ticket.Description,
+					statessid: support_ticket.support_statesssid,
+					museuid: support_ticket.museummid,
+					userid: support_ticket.userid,
+					priority: support_ticket.priority,
 				};
 			}),
 		};
@@ -33,7 +33,7 @@ exports.getSupport_Ticket = async (req, res) => {
 	try {
 		let id = req.params.id;
 
-		let ticket = await Support_Ticket.findByPk(id);
+		let ticket = await db.support_ticket.findByPk(id);
 
 		if (!ticket) {
 			return res.status(404).send({ success: 0, message: "Pedido de suporte inexistente" });
@@ -44,12 +44,12 @@ exports.getSupport_Ticket = async (req, res) => {
 			length: 1,
 			results: [
 				{
-					id: ticket.id,
-					description: ticket.description,
-					statessid: ticket.support_statesssid,
-					museuid: ticket.museummid,
-					userid: ticket.userid,
-					priority: ticket.priority,
+					id: support_ticket.stid,
+					description: support_ticket.Description,
+					statessid: support_ticket.support_statesssid,
+					museuid: support_ticket.museummid,
+					userid: support_ticket.userid,
+					priority: support_ticket.priority,
 				},
 			],
 		};
@@ -107,7 +107,7 @@ exports.informEstimatedDeadline = async (req, res) => {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
-		let support_ticket = await Support_ticket.findByPk(id);
+		let support_ticket = await db.support_ticket.findByPk(id);
 
 		if (!support_ticket) {
 			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
@@ -118,7 +118,7 @@ exports.informEstimatedDeadline = async (req, res) => {
 		}*/
 
 		support_ticket.deadline = x; //Atribuir prazo
-		await support_ticket.save();
+		await db.support_ticket.save();
 
 		let response = {
 			success: 1,
@@ -137,7 +137,7 @@ exports.removeSupport_Ticket = async (req, res) => {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
-		let ticket = await Support_Ticket.findByPk(id);
+		let ticket = await db.support_ticket.findByPk(id);
 
 		if (!ticket) {
 			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
@@ -174,7 +174,7 @@ exports.concludeSupportTicket = async (req, res) => {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
-		let support_ticket = await Support_ticket.findByPk(id);
+		let support_ticket = await db.support_ticket.findByPk(id);
 
 		if (!support_ticket) {
 			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
@@ -209,7 +209,7 @@ exports.approveSupport_ticket = async (req, res) => {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
-		let support_ticket = await Support_ticket.findByPk(id);
+		let support_ticket = await db.support_ticket.findByPk(id);
 
 		if (!support_ticket) {
 			return res.status(404).send({ success: 0, message: "Ticket inexistente" });

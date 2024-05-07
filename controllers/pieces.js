@@ -1,11 +1,9 @@
-const Piece = require("../models/piece");
-const PieceCategory = require('../models/piece_category');
-const Collection = require('../models/collection');
+const db = require('../config/mysql');
 const utils = require("../utils/index");
 
 exports.getPieces = async (req, res) => {
 	try {
-		let pieces = await Piece.findAll();
+		let pieces = await db.piece.findAll();
 
 		if (pieces.length === 0) return res.status(404).send({ success: 0, message: "Não existem peças" });
 
