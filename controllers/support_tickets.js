@@ -1,7 +1,6 @@
 const Support_Ticket = require("../models/support_ticket");
 const utils = require("../utils/index");
 
-
 exports.getSupport_tickets = async (req, res) => {
 	try {
 		let tickets = await Support_Ticket.findAll();
@@ -15,11 +14,11 @@ exports.getSupport_tickets = async (req, res) => {
 			results: tickets.map((Support_Ticket) => {
 				return {
 					id: tickets.id,
-                    description: tickets.description,
-                    statessid: tickets.support_statesssid,
-                    museuid: tickets.museummid,
-                    userid: tickets.userid,
-                    priority: tickets.priority,
+					description: tickets.description,
+					statessid: tickets.support_statesssid,
+					museuid: tickets.museummid,
+					userid: tickets.userid,
+					priority: tickets.priority,
 				};
 			}),
 		};
@@ -46,11 +45,11 @@ exports.getSupport_Ticket = async (req, res) => {
 			results: [
 				{
 					id: ticket.id,
-                    description: ticket.description,
-                    statessid: ticket.support_statesssid,
-                    museuid: ticket.museummid,
-                    userid: ticket.userid,
-                    priority: ticket.priority,
+					description: ticket.description,
+					statessid: ticket.support_statesssid,
+					museuid: ticket.museummid,
+					userid: ticket.userid,
+					priority: ticket.priority,
 				},
 			],
 		};
@@ -64,7 +63,6 @@ exports.getSupport_Ticket = async (req, res) => {
 
 exports.addSupport_Ticket = async (req, res) => {
 	try {
-
 		let description = req.body.description;
 		let statessid = req.body.statessid;
 		let museuid = req.body.museuid;
@@ -72,19 +70,19 @@ exports.addSupport_Ticket = async (req, res) => {
 		let priority = req.body.priority;
 		let userId = req.user.id;
 
-        //Verificar depois se vai ser necessario permissoes
+		//Verificar depois se vai ser necessario permissoes
 
 		let user = await User.findByPk(userId);
 		if (!user) {
 			return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
 		}
 
-        let newSupport_Ticket = await Support_Ticket.create({
+		let newSupport_Ticket = await Support_Ticket.create({
 			Description: description,
 			support_statesssid: statessid,
 			museummid: museuid,
 			useruid: userId,
-			priority: priority
+			priority: priority,
 		});
 
 		let response = {
@@ -101,7 +99,6 @@ exports.addSupport_Ticket = async (req, res) => {
 
 exports.informEstimatedDeadline = async (req, res) => {
 	try {
-
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
@@ -116,12 +113,12 @@ exports.informEstimatedDeadline = async (req, res) => {
 			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
 		}
 
-		if ( /* Fazer a verificação */ ) {
+		/*if (  Fazer a verificação  ) {
 			return res.status(409).send({ success: 0, message: "Prazo estimado já atribuído" });
-		}
+		}*/
 
 		support_ticket.deadline = x; //Atribuir prazo
-        await support_ticket.save();
+		await support_ticket.save();
 
 		let response = {
 			success: 1,
@@ -137,7 +134,6 @@ exports.informEstimatedDeadline = async (req, res) => {
 
 exports.removeSupport_Ticket = async (req, res) => {
 	try {
-
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
@@ -170,7 +166,6 @@ exports.removeSupport_Ticket = async (req, res) => {
 
 exports.concludeSupportTicket = async (req, res) => {
 	try {
-
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
@@ -190,7 +185,7 @@ exports.concludeSupportTicket = async (req, res) => {
 		}
 
 		support_ticket.support_statesssid = 3;
-        await support_ticket.save();
+		await support_ticket.save();
 
 		let response = {
 			success: 1,
@@ -206,7 +201,6 @@ exports.concludeSupportTicket = async (req, res) => {
 
 exports.approveSupport_ticket = async (req, res) => {
 	try {
-
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
@@ -226,7 +220,7 @@ exports.approveSupport_ticket = async (req, res) => {
 		}
 
 		support_ticket.support_statesssid = 2;
-        await support_ticket.save();
+		await support_ticket.save();
 
 		let response = {
 			success: 1,
@@ -240,6 +234,4 @@ exports.approveSupport_ticket = async (req, res) => {
 	}
 };
 
-exports.provideFeedback = async (req, res) => {
-
-};
+exports.provideFeedback = async (req, res) => {};

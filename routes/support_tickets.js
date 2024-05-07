@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const support_ticket_controller = require("../controllers/support_tickets");
+const login = require("../middleware/login");
 
 // List all support tickets
 router.get("/support_tickets", support_ticket_controller.getSupport_tickets);
@@ -11,8 +12,6 @@ router.get("/support_tickets/:id", support_ticket_controller.getSupport_Ticket);
 router.post("/support_tickets/add", login.required, support_ticket_controller.addSupport_Ticket);
 //Inform estimated deadline
 router.put("/support-ticket/inform-estimated-deadline/:id", login.required, support_ticket_controller.informEstimatedDeadline);
-// Edit support ticket
-router.put("/support_tickets/edit/:id", login.required, support_ticket_controller.editSupport_Ticket);
 // Remove support ticket
 router.delete("/support_tickets/remove/:id", login.required, support_ticket_controller.removeSupport_Ticket);
 //Conclude support ticket

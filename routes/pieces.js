@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const piecesController = require("../controllers/pieces");
+const login = require("../middleware/login");
 
 // List all pieces
-router.get("/pieces",piecesController.getPieces);
+router.get("/pieces", piecesController.getPieces);
 // List specific piece by id
 router.get("/pieces/:id", piecesController.getPieceById);
 // List specific piece by name

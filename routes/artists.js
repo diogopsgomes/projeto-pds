@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const artistController = require("../controllers/artists");
+const login = require("../middleware/login");
 
 // List all artists
 router.get("/artists", artistController.getArtists);
