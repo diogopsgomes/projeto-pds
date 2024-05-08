@@ -223,7 +223,7 @@ exports.removeMuseum = async (req, res) => {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
-		let museum = await Museum.findByPk(id);
+		let museum = await db.museum.findByPk(id);
 
 		if (!museum) {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });

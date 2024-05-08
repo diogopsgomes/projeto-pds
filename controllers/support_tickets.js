@@ -269,4 +269,38 @@ exports.approveSupport_ticket = async (req, res) => {
 	}
 };
 
-exports.provideFeedback = async (req, res) => {};
+exports.provideFeedback = async (req, res) => {
+		try {
+			let description = req.body.description;
+			let evaluation = req.body.evaluation;
+			let ticket = req.body.ticket;
+			let userId = req.user.id;
+	
+	
+			let user = await db.user.findByPk(userId);
+			if (!user) {
+				return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
+			}
+
+			let s_ticket = await db.support_ticket.findByPk(ticket);
+        	if (!s_ticket || s_ticket.useruid !== userId) {
+            	return res.status(403).send({ success: 0, message: "Apenas o autor do ticket pode fornecer feedback" });
+        	}
+	
+			let new_Support_evaluation = await db.support_evaluation({
+				se_description: description,
+				se_evaluation: evaluation,
+				support_ticketstid: ticket
+			});
+	
+			let response = {
+				success: 1,
+				message: "Pedido de Suporte avaliado com sucesso",
+			};
+	
+			return res.status(200).send(response);
+		} catch (err) {
+			console.error("Error avaliating Support Ticket:", err);
+			return res.status(500).send({ error: err, message: err.message });
+		}
+};
