@@ -14,10 +14,7 @@ exports.login = async (req, res) => {
 		if (!user) {
 			return res.status(401).send({ success: 0, message: 'Falha na autenticação' });
 		}
-
-		// If passwords match
 		if (bcrypt.compareSync(password, user.user_password)) {
-			// Generate token
 			let token = jwt.sign(
 				{
 					uid: user.uid,
@@ -29,7 +26,6 @@ exports.login = async (req, res) => {
 				}
 			);
 
-			// Send response
 			return res.status(200).send({
 				success: 1,
 				message: 'Autenticado com sucesso',
@@ -37,7 +33,6 @@ exports.login = async (req, res) => {
 			});
 		}
 
-		// If passwords don't match
 		return res.status(401).send({ success: 0, message: 'Falha na autenticação' });
 	} catch (err) {
 		return res.status(500).send({ error: err, message: err.message });
@@ -47,7 +42,7 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
 	try {
 
-		let { email, password, name, status } = req.body;
+		let { email, password, name, status, type } = req.body;
 
 		let existingUser = await db.user.findOne({ where: { user_email: email } });
 
@@ -64,7 +59,8 @@ exports.register = async (req, res) => {
 			user_email: email,
 			user_password: hashedPassword,
 			user_name: name,
-			user_statusus_id: status
+			user_statusus_id: status,
+			user_typeutid: type
 		});
 
 		let response = {
@@ -81,11 +77,11 @@ exports.register = async (req, res) => {
 exports.getUsers = async (req, res) => {
 	try {
 
-		//let idUserToken = req.user.id;
+		let idUserToken = req.user.id;
 
-		/*let isAdmin = await utils.isAdmin(idUserToken);
+		let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin) return res.status(403).send({ success: 0, message: 'Sem permissão' });
-		*/
+		
 
 		let users = await db.user.findAll();
 
@@ -100,6 +96,7 @@ exports.getUsers = async (req, res) => {
 					email: user.user_email,
 					name: user.user_name,
 					status: user.user_statusus_id,
+					type: user.user_typeutid
 				};
 			}),
 		};
@@ -114,11 +111,11 @@ exports.getUser = async (req, res) => {
 	try {
 
 		let id = req.params.id;
-		//let idUserToken = req.user.id;
+		let idUserToken = req.user.id;
 
-		/*let isAdmin = await utils.isAdmin(idUserToken);
+		let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin && id != idUserToken) return res.status(403).send({ success: 0, message: 'Sem permissão' });
-		*/
+
 		let user = await db.user.findByPk(id);
 
 
@@ -132,6 +129,7 @@ exports.getUser = async (req, res) => {
 				email: user.user_email,
 				name: user.user_name,
 				status: user.user_statusus_id,
+				type: user.user_typeutid
 			}],
 		};
 
@@ -151,21 +149,14 @@ exports.editUser = async (req, res) => {
 		let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin && id != idUserToken) return res.status(403).send({ message: 'Sem permissão' });
 
-		let user = await User.findByPk(id);
+		let user = await db.user.findByPk(id);
 		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });
 
 		if (req.body.email) {
 			if (req.body.email.length < 5) return res.status(406).send({ success: 0, message: 'Email inválido' });
 			user.email = req.body.email;
 		}
-		if (req.body.name) user.name = req.body.name;
-		if (req.body.nif) {
-			if (!Number.isInteger(user.nif) && user.nif.length != 9) return res.status(406).send({ success: 0, message: 'NIF inválido' });
-			user.nif = req.body.nif;
-		}
-		if (req.body.address) user.address = req.body.address;
-		if (req.body.postalCode) user.postal_code = req.body.postalCode;
-		if (req.body.city) user.city = req.body.city;
+		if (req.body.name) user.user_name = req.body.name;
 
 		await user.save();
 

@@ -26,6 +26,14 @@ module.exports = function(sequelize, DataTypes) {
         model: 'user_status',
         key: 'us_id'
       }
+    },
+    user_typeutid: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'user_type',
+        key: 'utid'
+      }
     }
   }, {
     sequelize,
@@ -38,6 +46,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "uid" },
+        ]
+      },
+      {
+        name: "FKuser33915",
+        using: "BTREE",
+        fields: [
+          { name: "user_typeutid" },
         ]
       },
       {

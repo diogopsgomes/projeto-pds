@@ -6,7 +6,7 @@ exports.getSupport_tickets = async (req, res) => {
 		let tickets = await db.support_ticket.findAll();
 
 		if (tickets.length === 0)
-			return res.status(404).send({ success: 0, message: "Não existem Pedidos de suporte" });
+			return res.status(404).send({ success: 0, message: "Não existem pedidos de suporte" });
 
 		let response = {
 			success: 1,
@@ -66,18 +66,16 @@ exports.addSupport_Ticket = async (req, res) => {
 		let description = req.body.description;
 		let statessid = req.body.statessid;
 		let museuid = req.body.museuid;
-		let userid = req.body.userid;
 		let priority = req.body.priority;
 		let userId = req.user.id;
 
-		//Verificar depois se vai ser necessario permissoes
 
-		let user = await User.findByPk(userId);
+		let user = await db.user.findByPk(userId);
 		if (!user) {
 			return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
 		}
 
-		let newSupport_Ticket = await Support_Ticket.create({
+		let newSupport_Ticket = await db.support_ticket.create({
 			Description: description,
 			support_statesssid: statessid,
 			museummid: museuid,
@@ -97,10 +95,47 @@ exports.addSupport_Ticket = async (req, res) => {
 	}
 };
 
+exports.informPriority = async (req, res) => {
+	try {
+		let id = req.params.id;
+		let idUserToken = req.user.id;
+		let priority = req.body.priority;
+
+		let isManager = await utils.isManager(idUserToken);
+		if (!isManager) {
+			return res.status(403).send({ success: 0, message: "Sem permissão" });
+		}
+
+		let support_ticket = await db.support_ticket.findByPk(id);
+
+		if (!support_ticket) {
+			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
+		}
+
+		/*if (  Fazer a verificação  ) {
+			return res.status(409).send({ success: 0, message: "Prioridade já atribuída" });
+		}*/
+
+		support_ticket.priority = priority; //Atribuir prioridade
+		await support_ticket.save();
+
+		let response = {
+			success: 1,
+			message: "Prioridade atribuída com sucesso",
+		};
+
+		return res.status(200).send(response);
+	} catch (err) {
+		console.error("Error informing priority:", err);
+		return res.status(500).send({ error: err, message: err.message });
+	}
+};
+
 exports.informEstimatedDeadline = async (req, res) => {
 	try {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
+		let deadline = req.body.deadline;
 
 		let isManager = await utils.isManager(idUserToken);
 		if (!isManager) {
@@ -117,8 +152,8 @@ exports.informEstimatedDeadline = async (req, res) => {
 			return res.status(409).send({ success: 0, message: "Prazo estimado já atribuído" });
 		}*/
 
-		support_ticket.deadline = x; //Atribuir prazo
-		await db.support_ticket.save();
+		support_ticket.deadline = deadline; //Atribuir prazo
+		await support_ticket.save();
 
 		let response = {
 			success: 1,

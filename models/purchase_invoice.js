@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     purchase_entry_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
     museummid: {
@@ -33,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "purchase_invoice_purchase_invoiceid",
+        name: "purchase_invoiceid",
         unique: true,
         using: "BTREE",
         fields: [
