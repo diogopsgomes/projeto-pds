@@ -5,11 +5,13 @@ const support_ticket_controller = require("../controllers/support_tickets");
 const login = require("../middleware/login");
 
 // List all support tickets
-router.get("/support_tickets", support_ticket_controller.getSupport_tickets);
+router.get("/supportTickets", login.required, support_ticket_controller.getSupport_tickets);
 // List specific support ticket
-router.get("/support_tickets/:id", support_ticket_controller.getSupport_Ticket);
+router.get("/supportTickets/:id", login.required, support_ticket_controller.getSupport_Ticket);
 // Add support ticket
 router.post("/supportTickets/add", login.required, support_ticket_controller.addSupport_Ticket);
+//Inform priority
+router.put("/supportTicket/informPriority/:id", login.required, support_ticket_controller.informPriority);
 //Inform estimated deadline
 router.put("/support-ticket/inform-estimated-deadline/:id", login.required, support_ticket_controller.informEstimatedDeadline);
 // Remove support ticket

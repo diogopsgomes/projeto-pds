@@ -3,10 +3,18 @@ const utils = require("../utils/index");
 
 exports.getSupport_tickets = async (req, res) => {
 	try {
-		let tickets = await db.support_ticket.findAll();
+
+		let idUserToken = req.user.id;
+
+		let manager = await db.usermuseum.findOne({ where: { useruid: idUserToken }});
+
+		let tickets = await db.support_ticket.findAll({ where: {museummid: manager.museummid}});
 
 		if (tickets.length === 0)
 			return res.status(404).send({ success: 0, message: "Não existem pedidos de suporte" });
+
+		let isManager = await utils.isManager(idUserToken);
+		if (!isManager) return res.status(403).send({ success: 0, message: 'Sem permissão' });
 
 		let response = {
 			success: 1,
@@ -17,7 +25,7 @@ exports.getSupport_tickets = async (req, res) => {
 					description: support_ticket.Description,
 					statessid: support_ticket.support_statesssid,
 					museuid: support_ticket.museummid,
-					userid: support_ticket.userid,
+					userid: support_ticket.useruid,
 					priority: support_ticket.priority,
 				};
 			}),
@@ -31,13 +39,20 @@ exports.getSupport_tickets = async (req, res) => {
 
 exports.getSupport_Ticket = async (req, res) => {
 	try {
+
+		let idUserToken = req.user.id;
 		let id = req.params.id;
 
-		let ticket = await db.support_ticket.findByPk(id);
+		let manager = await db.usermuseum.findOne({ where: { useruid: idUserToken }});
+
+		let ticket = await db.support_ticket.findOne({ where: { museummid: manager.museummid, stid: id}});
 
 		if (!ticket) {
 			return res.status(404).send({ success: 0, message: "Pedido de suporte inexistente" });
 		}
+
+		let isManager = await utils.isManager(idUserToken);
+		if (!isManager) return res.status(403).send({ success: 0, message: 'Sem permissão' });
 
 		let response = {
 			success: 1,
@@ -48,7 +63,7 @@ exports.getSupport_Ticket = async (req, res) => {
 					description: support_ticket.Description,
 					statessid: support_ticket.support_statesssid,
 					museuid: support_ticket.museummid,
-					userid: support_ticket.userid,
+					userid: support_ticket.useruid,
 					priority: support_ticket.priority,
 				},
 			],
@@ -56,7 +71,7 @@ exports.getSupport_Ticket = async (req, res) => {
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error fetching Support Tickets:", err);
+		console.error("Error fetching Support Ticket:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -64,23 +79,21 @@ exports.getSupport_Ticket = async (req, res) => {
 exports.addSupport_Ticket = async (req, res) => {
 	try {
 		let description = req.body.description;
-		let statessid = req.body.statessid;
-		let museuid = req.body.museuid;
-		let priority = req.body.priority;
-		let userId = req.user.id;
+		let museum = req.body.museum;
+		let idUserToken = req.user.id;
 
 
-		let user = await db.user.findByPk(userId);
+		let user = await db.user.findByPk(idUserToken);
 		if (!user) {
 			return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
 		}
 
 		let newSupport_Ticket = await db.support_ticket.create({
 			Description: description,
-			support_statesssid: statessid,
-			museummid: museuid,
-			useruid: userId,
-			priority: priority,
+			support_statesssid: 1,
+			museummid: museum,
+			useruid: idUserToken,
+			priority: 1,
 		});
 
 		let response = {
@@ -112,11 +125,11 @@ exports.informPriority = async (req, res) => {
 			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
 		}
 
-		/*if (  Fazer a verificação  ) {
+		if (support_ticket.priority != 1) {
 			return res.status(409).send({ success: 0, message: "Prioridade já atribuída" });
-		}*/
+		}
 
-		support_ticket.priority = priority; //Atribuir prioridade
+		support_ticket.priority = priority;
 		await support_ticket.save();
 
 		let response = {
