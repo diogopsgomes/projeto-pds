@@ -2,9 +2,9 @@ const db = require('../config/mysql');
 
 exports.isAdmin = async (id) => {
     try {
-        const user = await db.user.findByPk(id, { include: db.user_type });
+        const user = await db.user.findByPk(id);
 
-		if (!user || !user.user_type || user.user_type.ut_description !== "admin") return 0;
+		if (!user || user.user_typeutid != 1) return 0;
 
         return 1;
     } catch (err) {

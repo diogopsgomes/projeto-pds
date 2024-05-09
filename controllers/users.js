@@ -17,7 +17,7 @@ exports.login = async (req, res) => {
 		if (bcrypt.compareSync(password, user.user_password)) {
 			let token = jwt.sign(
 				{
-					uid: user.uid,
+					id: user.uid,
 				},
 				'#^NJW5SKJ$Oke&Q=QJAR{hfAt9BH^e',
 				{
