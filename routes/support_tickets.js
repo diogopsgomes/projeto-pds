@@ -20,5 +20,7 @@ router.delete("/support_tickets/remove/:id", login.required, support_ticket_cont
 router.put("/support_ticket/conclude/:id", login.required, support_ticket_controller.concludeSupportTicket);
 //Approve support ticket
 router.put("/support_ticket/approve/:id", login.required, support_ticket_controller.approveSupport_ticket);
+//Report Missing Data
+router.post("/support_ticket/reportMissingData/:id", login.required, support_ticket_controller.reportMissingData);
 
 module.exports = router;

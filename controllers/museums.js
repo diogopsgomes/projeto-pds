@@ -193,16 +193,6 @@ exports.editMuseum = async (req, res) => {
 
 		let { address, postalCode, city, nif } = req.body;
 
-		if (address) museum.address = address;
-		if (postalCode) museum.postal_code = postalCode;
-		if (city) museum.city = city;
-		if (nif) {
-			if (!Number.isInteger(nif) || nif.length != 9) {
-				return res.status(406).send({ success: 0, message: "NIF inválido" });
-			}
-			museum.nif = nif;
-		}
-
 		await museum.save();
 
 		let response = {
