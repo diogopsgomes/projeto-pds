@@ -53,7 +53,6 @@ exports.getMuseumById = async (req, res) => {
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error fetching museum:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -85,7 +84,6 @@ exports.getMuseumsByName = async (req, res) => {
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error fetching pieces by name:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -94,7 +92,7 @@ exports.getMuseumsByCategory = async (req, res) => {
     try {
         let categoryName = req.params.categoryName;
 
-        let category = await db.museum_category.findOne({ where: { museum_category : categoryName } });
+        let category = await db.museum_category.findOne({ where: { mc_description : categoryName } });
 
         if (!category) {
             return res.status(404).send({ success: 0, message: "Categoria inexistente" });
@@ -123,7 +121,6 @@ exports.getMuseumsByCategory = async (req, res) => {
 
         return res.status(200).send(response);
     } catch (err) {
-        console.error("Error fetching museums by category:", err);
         return res.status(500).send({ error: err, message: err.message });
     }
 };
@@ -137,8 +134,8 @@ exports.addMuseum = async (req, res) => {
 		let zip_ext = req.body.zip_ext;
 		let category = req.body.category;
 		let zip_code = req.body.zip_code;
-		let idOwner = req.body.idOwner;
-		let idUserToken = req.user.id;
+		//let idOwner = req.body.idOwner;
+		//let idUserToken = req.user.id;
 
 		/*let isAdmin = await utils.isAdmin(idUserToken);
 		if (!isAdmin && idOwner != idUserToken) {
@@ -168,7 +165,6 @@ exports.addMuseum = async (req, res) => {
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error adding museum:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -184,14 +180,18 @@ exports.editMuseum = async (req, res) => {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });
 		}
 
-		let idOwner = museum.id_user;
-
 		let isAdmin = await utils.isAdmin(idUserToken);
-		if (!isAdmin && idOwner != idUserToken) {
+		let isManager = await utils.isManager(idUserToken);
+		if (!isAdmin || !isManager) {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
-		let { address, postalCode, city, nif } = req.body;
+		let { name, address, category, zip_code } = req.body;
+
+		museum.museum_name = name;
+		museum.museum_address = address;
+		museum.museum_categorymcid = category;
+		museum.zip_codezipid = zip_code;
 
 		await museum.save();
 
@@ -202,7 +202,6 @@ exports.editMuseum = async (req, res) => {
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error editing museum:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -219,10 +218,9 @@ exports.removeMuseum = async (req, res) => {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });
 		}
 
-		let idOwner = museum.id_user;
-
 		let isAdmin = await utils.isAdmin(idUserToken);
-		if (!isAdmin && idOwner != idUserToken) {
+		let isManager = await utils.isManager(idUserToken);
+		if (!isAdmin || !isManager) {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
@@ -235,7 +233,6 @@ exports.removeMuseum = async (req, res) => {
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error removing museum:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
@@ -243,18 +240,18 @@ exports.removeMuseum = async (req, res) => {
 exports.approveMuseum = async (req, res) => {
 	try {
 
-		const id = req.params.id;
-		const idUserToken = req.user.id;
+		let id = req.params.id;
+		let idUserToken = req.user.id;
 
-		const isAdmin = await utils.isAdmin(idUserToken);
-		if (!isAdmin) {
-			return res.status(403).send({ success: 0, message: "Sem permissão" });
-		}
-
-		const museum = await Museum.findByPk(id);
+		let museum = await db.museum.findByPk(id);
 
 		if (!museum) {
 			return res.status(404).send({ success: 0, message: "Museu inexistente" });
+		}
+
+		let isAdmin = await utils.isAdmin(idUserToken);
+		if (!isAdmin) {
+			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
 		if (museum.approved === 1) {
@@ -264,14 +261,13 @@ exports.approveMuseum = async (req, res) => {
 		museum.approved = 1;
 		await museum.save();
 
-		const response = {
+		let response = {
 			success: 1,
 			message: "Museu aprovado com sucesso",
 		};
 
 		return res.status(200).send(response);
 	} catch (err) {
-		console.error("Error approving museum:", err);
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };

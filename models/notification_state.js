@@ -1,19 +1,19 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('user_type', {
-    utid: {
+  return sequelize.define('notification_state', {
+    nsid: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    ut_description: {
+    ns_description: {
       type: DataTypes.STRING(255),
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'user_type',
+    tableName: 'notification_state',
     timestamps: false,
     indexes: [
       {
@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "utid" },
+          { name: "nsid" },
         ]
       },
     ]

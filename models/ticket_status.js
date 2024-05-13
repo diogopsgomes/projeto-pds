@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     desc_ticket_status: {
       type: DataTypes.STRING(255),
-      allowNull: true
+      allowNull: false
     }
   }, {
     sequelize,

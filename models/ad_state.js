@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     description: {
       type: DataTypes.STRING(255),
-      allowNull: true
+      allowNull: false
     },
     adsadid: {
       type: DataTypes.INTEGER,

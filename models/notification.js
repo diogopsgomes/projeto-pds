@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     n_description: {
       type: DataTypes.STRING(255),
-      allowNull: true
+      allowNull: false
     },
     notification_typentid: {
       type: DataTypes.INTEGER,
@@ -25,6 +25,14 @@ module.exports = function(sequelize, DataTypes) {
       references: {
         model: 'user',
         key: 'uid'
+      }
+    },
+    notification_statensid: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'notification_state',
+        key: 'nsid'
       }
     }
   }, {
@@ -52,6 +60,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "useruid" },
+        ]
+      },
+      {
+        name: "FKnotificati792180",
+        using: "BTREE",
+        fields: [
+          { name: "notification_statensid" },
         ]
       },
     ]

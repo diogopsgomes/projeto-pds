@@ -38,6 +38,18 @@ module.exports = function(sequelize, DataTypes) {
     priority: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    deadline: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    admin_useruid: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'user',
+        key: 'uid'
+      }
     }
   }, {
     sequelize,
@@ -71,6 +83,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "useruid" },
+        ]
+      },
+      {
+        name: "FKsupport_ti140257",
+        using: "BTREE",
+        fields: [
+          { name: "admin_useruid" },
         ]
       },
     ]
