@@ -42,13 +42,10 @@ exports.getSupportTickets = async (req, res) => {
 	}
 };
 
-
-
 exports.getSupportTicket = async (req, res) => {
     try {
         let idUserToken = req.user.id;
         let id = req.params.id;
-		console.log("ID do ticket:", id);
 
         let ticket;
 
@@ -91,17 +88,17 @@ exports.getSupportTicket = async (req, res) => {
 exports.addSupportTicket = async (req, res) => {
 	try {
 		let description = req.body.description;
-		let museumId = req.params.museum;
+		let museumId = req.body.museum;
 		let idUserToken = req.user.id;
 
-		let museum = await db.museum.findOne(museumId);
+		let museum = await db.museum.findByPk(museumId);
 
 		if(!museum) return res.status(404).send({ success: 0, message: "Museu inexistente" });
 
 		let newSupport_Ticket = await db.support_ticket.create({
 			Description: description,
 			support_statesssid: 1,
-			museummid: museum,
+			museummid: museumId,
 			useruid: idUserToken,
 			priority: 1,
 		});
