@@ -24,5 +24,7 @@ router.put("/support_ticket/approve/:id", login.required, support_ticket_control
 router.post('/supportTicket/feedback/:id', login.required, support_ticket_controller.provideFeedback);
 //Send notifications
 router.post('/supportTicket/sendNotifications/:id', login.required, support_ticket_controller.sendNotifications);
+//Inform missing data
+router.post('/supportTicket/informMissingData/:id', login.required, support_ticket_controller.informMissingData);
 
 module.exports = router;

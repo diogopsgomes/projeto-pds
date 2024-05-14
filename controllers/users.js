@@ -2,6 +2,7 @@ const db = require('../config/mysql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const utils = require('../utils/index');
+const notification = require('./notifications');
 
 exports.login = async (req, res) => {
 	try {
@@ -66,6 +67,45 @@ exports.register = async (req, res) => {
 		let response = {
 			success: 1,
 			message: 'Utilizador registado com sucesso',
+		};
+
+		return res.status(201).send(response);
+	} catch (err) {
+		return res.status(500).send({ error: err, message: err.message });
+	}
+};
+
+exports.registerAdmin = async(req, res) =>{
+	try {
+
+		let idUserToken = req.user.id;
+		let { email, password, name} = req.body;
+		
+		let isAdmin = await utils.isAdmin(idUserToken);
+		if (!isAdmin) return res.status(403).send({ success: 0, message: 'Sem permissão' });
+
+		let existingAdmin = await db.user.findOne({ where: { user_email: email } });
+
+		if (existingAdmin) {
+			return res.status(409).send({ success: 0, message: 'Admin já registado' });
+		}
+
+		if (email.length < 5) return res.status(406).send({ success: 0, message: 'Email inválido' });
+		if (password.length < 12) return res.status(411).send({ success: 0, message: 'A palavra-passe tem de ter 12 ou mais caracteres' });
+
+		let hashedPassword = await bcrypt.hash(password, 10);
+
+		let newUser = await db.user.create({
+			user_email: email,
+			user_password: hashedPassword,
+			user_name: name,
+			user_statusus_id: 1,
+			user_typeutid: 1
+		});
+
+		let response = {
+			success: 1,
+			message: 'Admin registado com sucesso',
 		};
 
 		return res.status(201).send(response);
@@ -297,3 +337,54 @@ exports.changePassword = async (req, res) => {
 		return res.status(500).send({ error: err, message: err.message });
 	}
 };
+
+exports.suspendActivity = async (req, res) => {
+	try{
+		let id = req.params.id;
+		let idUserToken = req.user.id;
+
+		let isAdmin = await utils.isAdmin(idUserToken);
+		if (!isAdmin) return res.status(403).send({ message: 'Sem permissão' });
+
+		let user = await db.user.findByPk(id);
+		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });
+
+		user.user_statusus_id = 2
+		await user.save();
+
+		let response = {
+			success: 1,
+			message: "Atividade suspensa com sucesso",
+		};
+
+		return res.status(200).send(response);
+	}catch (err) {
+		return res.status(500).send({ error: err, message: err.message });
+	}
+};
+
+exports.informImproperConduct = async (req, res) =>{
+	try{
+		let id = req.params.id;
+		let idUserToken = req.user.id;
+		let description = req.body.description;
+		let type = req.body.type;
+
+		let isAdmin = await utils.isAdmin(idUserToken);
+		if (!isAdmin) return res.status(403).send({ message: 'Sem permissão' });
+
+		let user = await db.user.findByPk(id);
+		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });
+
+		let newNotification = await notification.addNotifications(description, type, id);
+
+		let response = {
+			success: 1,
+			message: "Notificação enviada com sucesso",
+		};
+
+		return res.status(200).send(response);
+	}catch (err) {
+		return res.status(500).send({ error: err, message: err.message });
+	}
+}

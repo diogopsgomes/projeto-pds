@@ -379,5 +379,48 @@ exports.sendNotifications = async (req, res) =>{
 	}
 };
 
+exports.informMissingData = async (req, res) =>{
+	try{
+
+		let description = req.body.description;
+		let type = req.body.type;
+		let id = req.params.id;
+		let idUserToken = req.user.id;
+
+		let support_ticket = await db.support_ticket.findByPk(id);
+
+		if (!support_ticket) {
+			return res.status(404).send({ success: 0, message: "Pedido de suporte inexistente" });
+		}
+
+		let isManager = await utils.isManager(idUserToken);
+		if (!isManager) {
+			return res.status(403).send({ success: 0, message: "Sem permissão" });
+		}
+
+		let manager = await db.usermuseum.findOne({ where: { useruid: idUserToken } });
+		if (support_ticket.museummid !== manager.museummid) {
+            return res.status(403).send({ success: 0, message: 'Ticket não pertence ao seu museu' });
+        }
+
+		if(support_ticket.admin_useruid != idUserToken){
+			return res.status(404).send({ success: 0, message: "Apenas o responsável pelo ticket tem permissão" });
+		}
+
+		let newNotification = await notification.addNotifications(description, type, support_ticket.useruid);
+
+		support_ticket.support_statesssid = 4;
+
+		let response = {
+			success: 1,
+			message: "Notificação enviada com sucesso",
+		};
+
+		return res.status(200).send(response);
+	}catch(err){
+		return res.status(500).send({ error: err, message: err.message });
+	}
+};
+
 
 
