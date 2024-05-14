@@ -4,7 +4,7 @@ exports.isAdmin = async (id) => {
     try {
         const user = await db.user.findByPk(id);
 
-		if (!user || user.user_typeutid != 1) return 0;
+		if (!user || user.user_typeutid != 2) return 0;
 
         return 1;
     } catch (err) {

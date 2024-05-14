@@ -5,11 +5,12 @@ exports.getUnreadNotifications = async (req, res) => {
     try{
         let idUserToken = req.user.id;
 
-        let notifications = await db.notification.findOne({ where: { useruid: idUserToken }});
+        let notifications = await db.notification.findAll({ where: { useruid: idUserToken, notification_statensid: 1 }});
 
-        if (notifications.lenght === 0 || notifications.notification_statensid != 1) {
+        if (notifications.lenght === 0) {
 			return res.status(404).send({ success: 0, message: "Não existem notificações por ler" });
 		}
+
 
         let response = {
 			success: 1,
@@ -33,9 +34,9 @@ exports.getReadNotifications = async (req, res) => {
     try{
         let idUserToken = req.user.id;
 
-        let notifications = await db.notification.findOne({ where: { useruid: idUserToken }});
+        let notifications = await db.notification.findAll({ where: { useruid: idUserToken, notification_statensid: 2 }});
 
-        if (notifications.lenght === 0 || notifications.notification_statensid != 2) {
+        if (notifications.length === 0) {
 			return res.status(404).send({ success: 0, message: "Não existem notificações" });
 		}
 
@@ -59,7 +60,10 @@ exports.getReadNotifications = async (req, res) => {
 
 exports.getAllNotifications = async (req, res) =>{
     try{
-        let notifications = await db.notification.findAll();
+
+		let idUserToken = req.user.id;
+
+        let notifications = await db.notification.findAll({ where: { useruid: idUserToken }});
 
         if (notifications.lenght === 0) {
 			return res.status(404).send({ success: 0, message: "Não existem notificações" });

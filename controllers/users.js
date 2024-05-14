@@ -95,7 +95,7 @@ exports.registerAdmin = async(req, res) =>{
 
 		let hashedPassword = await bcrypt.hash(password, 10);
 
-		let newUser = await db.user.create({
+		let newAdmin = await db.user.create({
 			user_email: email,
 			user_password: hashedPassword,
 			user_name: name,
@@ -154,11 +154,9 @@ exports.getUser = async (req, res) => {
 		let idUserToken = req.user.id;
 
 		let isAdmin = await utils.isAdmin(idUserToken);
-		if (!isAdmin && id != idUserToken) return res.status(403).send({ success: 0, message: 'Sem permissão' });
+		if (!isAdmin) return res.status(403).send({ success: 0, message: 'Sem permissão' });
 
 		let user = await db.user.findByPk(id);
-
-
 		if (!user) return res.status(404).send({ success: 0, message: 'Utilizador inexistente' });
 
 		let response = {

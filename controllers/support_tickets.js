@@ -285,13 +285,13 @@ exports.approveSupportTicket = async (req, res) => {
             return res.status(403).send({ success: 0, message: 'Ticket não pertence ao seu museu' });
         }
 
-        if (ticket.support_statesssid != 1) {
+        if (support_ticket.support_statesssid != 1) {
             return res.status(409).send({ success: 0, message: "Impossível aprovar ticket" });
         }
 
-        ticket.support_statesssid = 2;
-		ticket.admin_useruid = idUserToken;
-		await ticket.save();
+        support_ticket.support_statesssid = 2;
+		support_ticket.admin_useruid = idUserToken;
+		await support_ticket.save();
 
         let response = {
             success: 1,
@@ -302,40 +302,6 @@ exports.approveSupportTicket = async (req, res) => {
     } catch (err) {
         return res.status(500).send({ error: err, message: err.message });
     }
-};
-
-
-exports.provideFeedback = async (req, res) => {
-	try {
-		let description = req.body.description;
-		let evaluation = req.body.evaluation;
-		let id = req.params.id;
-		let idUserToken = req.user.id;
-
-		let ticket = await db.support_ticket.findByPk(id);
-		if(!ticket){
-			return res.status(404).send({ success: 0, message: "Ticket inexistente" });
-		}
-        if (ticket.useruid !== idUserToken) {
-            return res.status(403).send({ success: 0, message: "Apenas o autor do ticket pode fornecer feedback" });
-        }
-	
-		let new_Support_evaluation = await db.support_evaluation({
-			se_description: description,
-			se_evaluation: evaluation,
-			support_ticketstid: ticket,
-			useruid: userId
-		});
-	
-		let response = {
-			success: 1,
-			message: "Pedido de Suporte avaliado com sucesso",
-		};
-	
-		return res.status(200).send(response);
-	} catch (err) {
-		return res.status(500).send({ error: err, message: err.message });
-	}
 };
 
 exports.sendNotifications = async (req, res) =>{
