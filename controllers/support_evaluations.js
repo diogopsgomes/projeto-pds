@@ -63,14 +63,14 @@ exports.removeSupportEvaluation = async (req, res) =>{
         let id = req.params.id;
 		let idUserToken = req.user.id;
 
+		let isAdmin = await utils.isAdmin(idUserToken);
+		if (!isAdmin) return res.status(403).send({ success: 0, message: 'Sem permissão' });
+
         let evaluation = await db.support_evaluation.findByPk(id);
 
         if (!evaluation) {
 			return res.status(404).send({ success: 0, message: "Avaliação inexistente" });
 		}
-
-        let isAdmin = await utils.isAdmin(idUserToken);
-		if (!isAdmin) return res.status(403).send({ success: 0, message: 'Sem permissão' });
 
         await evaluation.destroy();
 
@@ -85,7 +85,7 @@ exports.removeSupportEvaluation = async (req, res) =>{
 	}
 };
 
-exports.removeSupportEvaluation = async (req, res) =>{
+exports.editSupportEvaluation = async (req, res) =>{
     try{
         let id = req.params.id;
 		let idUserToken = req.user.id;
