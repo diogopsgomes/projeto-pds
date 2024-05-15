@@ -57,20 +57,14 @@ exports.addArtist = async (req, res) => {
 
 		let name = req.body.name;
 		let birthday = req.body.birthday;
-		let idOwner = req.body.idOwner;
 		let idUserToken = req.user.id;
 
 		let isAdmin = await utils.isAdmin(idUserToken); //Verificar
-		if (!isAdmin && idOwner != idUserToken) {
+		if (!isAdmin) {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
-		let user = await User.findByPk(idOwner);
-		if (!user) {
-			return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
-		}
-
-		let newArtist = await Artist.create({
+		let newArtist = await db.artist.create({
 			artist_name: name,
 			artist_birthday: birthday,
 		});
@@ -92,7 +86,7 @@ exports.editArtist = async (req, res) => {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
-		let artist = await Artist.findByPk(id);
+		let artist = await db.artist.findByPk(id);
 
 		if (!artist) {
 			return res.status(404).send({ success: 0, message: "Artista inexistente" });

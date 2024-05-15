@@ -32,7 +32,7 @@ exports.getPieceById = async (req, res) => {
 	try {
 		let id = req.params.id;
 
-		let piece = await Piece.findByPk(id);
+		let piece = await db.piece.findByPk(id);
 
 		if (!piece) {
 			return res.status(404).send({ success: 0, message: "Peça inexistente" });
@@ -62,9 +62,9 @@ exports.getPiecesByName = async (req, res) => {
     try {
 		let name = req.params.name;
 
-		let piece = await Museum.findAll({ where: { piece_name: name } });
+		let pieces = await db.museum.findAll({ where: { piece_name: name } });
 
-		if (!piece || piece.length === 0) {
+		if (!pieces || piece.length === 0) {
 			return res.status(404).send({ success: 0, message: "Peça inexistente" });
 		}
 
@@ -94,13 +94,13 @@ exports.getPiecesByCategory = async (req, res) => {
     try {
         let categoryName = req.params.categoryName;
 
-        let category = await PieceCategory.findAll({ where: { pc_description: categoryName } });
+        let category = await db.piece_category.findAll({ where: { pc_description: categoryName } });
 
         if (!category) {
             return res.status(404).send({ success: 0, message: "Categoria inexistente" });
         }
 
-        let pieces = await Piece.findAll({ where: { piece_categorypcid: category.pcid } });
+        let pieces = await db.piece.findAll({ where: { piece_categorypcid: category.pcid } });
 
         if (!pieces) {
             return res.status(404).send({ success: 0, message: "Não há peças para esta categoria" });
@@ -132,13 +132,13 @@ exports.getPiecesByCollection = async (req, res) => {
     try {
         let collectionName = req.params.collectionName;
 
-        let collection = await Collection.findAll({ where: { collection_name: collectionName } });
+        let collection = await db.collection.findAll({ where: { collection_name: collectionName } });
 
         if (!collection) {
             return res.status(404).send({ success: 0, message: "Coleção inexistente" });
         }
 
-        let pieces = await Piece.findAll({ where: { collectioncid: collection.cid } });
+        let pieces = await db.piece.findAll({ where: { collectioncid: collection.cid } });
 
         if (!pieces) {
             return res.status(404).send({ success: 0, message: "Não há peças para esta coleçãos" });
@@ -174,20 +174,14 @@ exports.addPieces = async (req, res) => {
         let collection = req.body.collection;
         let category = req.body.category;
         let museum = req.body.museum;
-		let idOwner = req.body.idOwner;
 		let idUserToken = req.user.id;
 
         let isAdmin = await utils.isAdmin(idUserToken);
-		if (!isAdmin && idOwner != idUserToken) {
+		if (!isAdmin) {
 			return res.status(403).send({ success: 0, message: "Sem permissão" });
 		}
 
-		let user = await User.findByPk(idOwner);
-		if (!user) {
-			return res.status(404).send({ success: 0, message: "Utilizador inexistente" });
-		}
-
-		let newPiece = await Piece.create({
+		let newPiece = await db.piece.create({
 			piece_name: name,
 			artistaid: artist,
 			collectioncid: collection,
@@ -213,7 +207,7 @@ exports.removePiece = async (req, res) => {
 		let id = req.params.id;
 		let idUserToken = req.user.id;
 
-		let piece = await Piece.findByPk(id);
+		let piece = await db.piece.findByPk(id);
 
 		if (!piece) {
 			return res.status(404).send({ success: 0, message: "Peça inexistente" });

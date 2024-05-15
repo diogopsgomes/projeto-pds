@@ -11,7 +11,6 @@ exports.getUnreadNotifications = async (req, res) => {
 			return res.status(404).send({ success: 0, message: "Não existem notificações por ler" });
 		}
 
-
         let response = {
 			success: 1,
 			length: notifications.length,
